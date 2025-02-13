@@ -1,0 +1,59 @@
+services:
+  # Nginx Service
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./project1:/var/www/project1
+      - ./project2:/var/www/project2
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - php1
+      - php2
+    networks:
+      - laravel_network
+
+  # PHP Service cho Project 1
+  php1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php1
+    volumes:
+      - ./project1:/var/www/project1
+    networks:
+      - laravel_network
+
+  # PHP Service cho Project 2  
+  php2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php2
+    volumes:
+      - ./project2:/var/www/project2
+    networks:
+      - laravel_network
+
+  # MySQL Service
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: laravel_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - laravel_network
+
+volumes:
+  mysql_data:
+
+networks:
+  laravel_network:
+    driver: bridge
